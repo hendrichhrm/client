@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import mqtt from 'mqtt';
-import axios from 'axios';
 import './Insertdata.css';
 
 const Insertdata = () => {
-    const [temperatureUnit, setTemperatureUnit] = useState('');
+    const [temperatureUnit, setTemperatureUnit] = useState('c');
     const [desiredTemperature, setDesiredTemperature] = useState('');
     const [popupMessage, setPopupMessage] = useState('');
     const [popupVisible, setPopupVisible] = useState(false);
     const [client, setClient] = useState(null);
+    const [espStatus, setEspStatus] = useState('Disconnected');
 
     useEffect(() => {
         const mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
@@ -25,16 +25,20 @@ const Insertdata = () => {
 
         mqttClient.on('message', (topic, message) => {
             console.log(`Received message on topic ${topic}: ${message.toString()}`);
-            if (topic === 'skripsi/byhendrich/dashtoesp' && message.toString() === "Testing MQTT connection") {
-                const time = new Date().toLocaleString();
-                setPopupMessage(`Message received at ${time}`);
-                setPopupVisible(true);
-                setTimeout(() => setPopupVisible(false), 3000);
+            if (topic === 'skripsi/byhendrich/esptodash') {
+                const parsedMessage = JSON.parse(message.toString());
+                if (parsedMessage.status) {
+                    setEspStatus(parsedMessage.status === 'connected' ? 'Connected' : 'Disconnected');
+                    setPopupMessage(`ESP32 is ${parsedMessage.status}`);
+                    setPopupVisible(true);
+                    setTimeout(() => setPopupVisible(false), 3000);
+                }
             }
         });
 
         mqttClient.on('error', (error) => {
             console.error('Connection error:', error);
+            setEspStatus('Disconnected');
             setPopupMessage('Connection error');
             setPopupVisible(true);
             setTimeout(() => setPopupVisible(false), 3000);
@@ -71,26 +75,42 @@ const Insertdata = () => {
         console.log("Sending data:", message);
         client.publish('skripsi/byhendrich/dashtoesp', message);
 
-        // Save data to MongoDB through backend API
-        // axios.post('https://mqtt-server-kappa.vercel.app/skripsi/byhendrich/dashtoesp', { waktu: new Date().toISOString(), nilai: [data] })
-        //     .then(response => {
-        //         console.log("Response from server:", response.data);
-        //         setPopupMessage('Data successfully sent and saved');
-        //         setPopupVisible(true);
-        //         setTimeout(() => setPopupVisible(false), 3000);
-        //     })
-        //     .catch(error => {
-        //         console.error("Error from server:", error);
-        //         setPopupMessage('Error saving data to database');
-        //         setPopupVisible(true);
-        //         setTimeout(() => setPopupVisible(false), 3000);
-        //     });
+        setPopupMessage('Data sent successfully');
+        setPopupVisible(true);
+        setTimeout(() => setPopupVisible(false), 3000);
+    };
 
+    const handleTemperatureUnitChange = (e) => {
+        const newUnit = e.target.value.toLowerCase();
+        if (newUnit === 'c' || newUnit === 'f') {
+            let newTemperature = desiredTemperature;
+            if (temperatureUnit === 'c' && newUnit === 'f' && newTemperature !== '') {
+                newTemperature = (desiredTemperature * 9 / 5) + 32;
+            } else if (temperatureUnit === 'f' && newUnit === 'c' && newTemperature !== '') {
+                newTemperature = (desiredTemperature - 32) * 5 / 9;
+            }
+            setTemperatureUnit(newUnit);
+            setDesiredTemperature(newTemperature ? parseFloat(newTemperature).toFixed(1) : '');
+        } else {
+            setTemperatureUnit('');
+        }
+    };
+
+    const handleDesiredTemperatureChange = (e) => {
+        setDesiredTemperature(e.target.value);
+    };
+
+    const handleBlur = () => {
+        if (desiredTemperature < 25) {
+            setDesiredTemperature(25);
+        } else if (desiredTemperature > 650) {
+            setDesiredTemperature(650);
+        }
     };
 
     return (
         <div className="container">
-            <h1>MQTT Control Panel</h1>
+            <h1>Control Panel</h1>
             <div>
                 <label htmlFor="Temperature-unit">Temperature Unit (c / f)</label>
                 <input
@@ -98,12 +118,7 @@ const Insertdata = () => {
                     id="Temperature-unit"
                     placeholder="c/f"
                     value={temperatureUnit}
-                    onChange={(e) => {
-                        const value = e.target.value.toLowerCase();
-                        if (value === 'c' || value === 'f' || value === '') {
-                            setTemperatureUnit(e.target.value);
-                        }
-                    }}
+                    onChange={handleTemperatureUnitChange}
                 />
             </div>
             <div>
@@ -116,16 +131,14 @@ const Insertdata = () => {
                     min="25"
                     max="650"
                     value={desiredTemperature}
-                    onChange={(e) => setDesiredTemperature(e.target.value)}
-                    onBlur={(e) => {
-                        if (e.target.value < 25) setDesiredTemperature(25);
-                        if (e.target.value > 650) setDesiredTemperature(650);
-                    }}
+                    onChange={handleDesiredTemperatureChange}
+                    onBlur={handleBlur}
                 />
             </div>
             
-            <button onClick={handleSendClick}>Start</button>
+            <button onClick={handleSendClick}>Send</button>
             <button onClick={() => window.location.href = "/data"}>View Data</button>
+            <p>ESP32 Status: {espStatus}</p>
 
             {popupVisible && <div className="popup">{popupMessage}</div>}
         </div>
