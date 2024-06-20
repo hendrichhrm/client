@@ -45,12 +45,16 @@ const Dataview = () => {
             }
         });
 
-        const checkEspStatus = () => {
+        const checkEspStatus = (message) => {
             if (esp32LastSeenRef.current) {
+                const parsedMessage = JSON.parse(message.toString());
                 const now = new Date();
                 const diff = now - esp32LastSeenRef.current;
                 if (diff > 10 * 1000) { // If more than 10 sec have passed without a status message
                     setEspStatus('Disconnected');
+                    setPopupMessage(`ESP32 is ${parsedMessage.status}`);
+                        setPopupVisible(true);
+                        setTimeout(() => setPopupVisible(false), 3000);
                 }
             }
         };
