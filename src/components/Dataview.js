@@ -56,7 +56,7 @@ const Dataview = () => {
     return (
         <div className="wrapper">
             <button className="button back-button" onClick={() => window.location.href = "/"}>Back</button>
-            <button className="button top-right-button" onClick={() => window.location.href = "/30-days-data"}>View Last 30 Days Data</button>
+            <button className="button top-right-button" onClick={() => window.location.href = "/last30days"}>View Last 30 Days Data</button>
             <div className="container">
                 <div className="header">
                     <h1>Data View</h1>
