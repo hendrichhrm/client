@@ -55,7 +55,7 @@ const Dataview = () => {
             }
         };
 
-        const statusInterval = setInterval(checkEspStatus, 30 * 1000); // Check every 10 seconds
+        const statusInterval = setInterval(checkEspStatus, 10 * 1000); // Check every 10 seconds
         fetchData();
         const dataInterval = setInterval(fetchData, 10 * 60 * 1000);
 

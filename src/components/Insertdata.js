@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import mqtt from 'mqtt';
 import './Insertdata.css';
 
@@ -8,6 +8,7 @@ const Insertdata = () => {
     const [popupMessage, setPopupMessage] = useState('');
     const [popupVisible, setPopupVisible] = useState(false);
     const [client, setClient] = useState(null);
+    const esp32LastSeenRef = useRef(new Date());
     const [espStatus, setEspStatus] = useState('Disconnected');
 
     useEffect(() => {
@@ -24,29 +25,41 @@ const Insertdata = () => {
         });
 
         mqttClient.on('message', (topic, message) => {
-            console.log(`Received message on topic ${topic}: ${message.toString()}`);
-            if (topic === 'skripsi/byhendrich/esp32status') {
+            try {
                 const parsedMessage = JSON.parse(message.toString());
-                if (parsedMessage.status) {
-                    setEspStatus(parsedMessage.status === 'Connected' ? 'Connected' : 'Disconnected');
-                    setPopupMessage(`ESP32 is ${parsedMessage.status}`);
-                    setPopupVisible(true);
-                    setTimeout(() => setPopupVisible(false), 3000);
+                if (topic === 'skripsi/byhendrich/esp32status') {
+                    if (parsedMessage.status) {
+                        setEspStatus(parsedMessage.status === 'Connected' ? 'Connected' : 'Disconnected');
+                        setPopupMessage(`ESP32 is ${parsedMessage.status}`);
+                        setPopupVisible(true);
+                        setTimeout(() => setPopupVisible(false), 3000);
+                        
+                        // Update the last seen timestamp when a status message is received
+                        esp32LastSeenRef.current = new Date();
+                    }
                 }
+            } catch (e) {
+                console.error('Error parsing JSON message:', e);
             }
         });
 
-        mqttClient.on('error', (error) => {
-            console.error('Connection error:', error);
-            setEspStatus('Disconnected');
-            setPopupMessage('Connection error');
-            setPopupVisible(true);
-            setTimeout(() => setPopupVisible(false), 3000);
-        });
+        const checkEspStatus = () => {
+            if (esp32LastSeenRef.current) {
+                const now = new Date();
+                const diff = now - esp32LastSeenRef.current;
+                if (diff > 10 * 1000) { // If more than 10 sec have passed without a status message
+                    setEspStatus('Disconnected');
+                }
+            }
+        };
+
+        const statusInterval = setInterval(checkEspStatus, 10 * 1000); // Check every 10 seconds
 
         return () => {
             mqttClient.end();
+            clearInterval(statusInterval);
         };
+        
     }, []);
 
     const handleSendClick = () => {
