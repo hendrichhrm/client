@@ -136,8 +136,8 @@ const Insertdata = () => {
                 />
             </div>
             
-            <button onClick={handleSendClick}>Send</button>
-            <button onClick={() => window.location.href = "/data"}>View Data</button>
+            <button className="start-button" onClick={handleSendClick}>Send</button>
+            <button className="dataview-button" onClick={() => window.location.href = "/data"}>View Data</button>
             <p>ESP32 Status: {espStatus}</p>
 
             {popupVisible && <div className="popup">{popupMessage}</div>}
