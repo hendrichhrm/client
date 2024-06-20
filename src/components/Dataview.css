@@ -1,3 +1,4 @@
+/* General Styles */
 body {
     font-family: 'Tilt Warp', sans-serif;
     background-color: #0d024d;
@@ -5,16 +6,19 @@ body {
     padding: 0;
 }
 
+/* Container */
 .container {
     max-width: 800px;
-    margin: 50px auto;
+    margin: 100px auto;
     background-color: #fff;
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 10px;
     box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
 
+/* Headings */
 h1 {
     text-align: center;
     margin-bottom: 20px;
@@ -27,6 +31,33 @@ h1 {
     margin-bottom: 20px;
 }
 
+/* Status Box */
+.data-view-status {
+    position: absolute;
+    height: 0px;
+    top: 65px;
+    left: 10px;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+}
+
+.data-view-status-box {
+    width: 10px;
+    height: 10px;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+.data-view-status-connected {
+    background-color: green;
+}
+
+.data-view-status-disconnected {
+    background-color: red;
+}
+
+/* Table Styles */
 .table {
     width: 100%;
     border-collapse: collapse;
@@ -43,8 +74,9 @@ h1 {
     background-color: #f2f2f2;
 }
 
-.button {
-    padding: 10px 20px;
+/* Button Styles */
+.data-view-button {
+    padding: auto;
     font-family: 'Tilt Warp', sans-serif;
     font-size: 18px;
     font-weight: 400;
@@ -67,15 +99,34 @@ h1 {
     position: absolute;
     top: 5px;
     right: 5px;
+    padding: auto;
 }
 
-.back-button {
+.dataview-back-button {
     background-color: #dc3545;
-    position: auto;
-    top: 10px;
-    left: 10px;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    padding: 10px 10px;
 }
 
-.back-button:hover {
+.dataview-back-button:hover {
     background-color: #c82333;
+}
+
+/* Popup Styles */
+.popup {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.5s;
+    text-align: center;
 }

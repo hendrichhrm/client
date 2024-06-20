@@ -29,7 +29,7 @@ const Last30days = () => {
 
     return (
         <div className="last30days-container">
-            <button className="button back-button" onClick={() => window.location.href = "/"}>Back</button>
+            <button className="last30days-back-button" onClick={() => window.location.href = "/"}>Home</button>
             <div className="header">
                 <h1>Last 30 Days Data</h1>
             </div>

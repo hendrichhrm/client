@@ -16,7 +16,7 @@ const Insertdata = () => {
 
         mqttClient.on('connect', () => {
             console.log('Connected to broker');
-            mqttClient.subscribe(['skripsi/byhendrich/dashtoesp', 'skripsi/byhendrich/esptodash'], { qos: 2 }, (error) => {
+            mqttClient.subscribe(['skripsi/byhendrich/dashtoesp', 'skripsi/byhendrich/esptodash', 'skripsi/byhendrich/esp32status'], { qos: 2 }, (error) => {
                 if (error) {
                     console.error('Subscription error:', error);
                 }
@@ -25,10 +25,10 @@ const Insertdata = () => {
 
         mqttClient.on('message', (topic, message) => {
             console.log(`Received message on topic ${topic}: ${message.toString()}`);
-            if (topic === 'skripsi/byhendrich/esptodash') {
+            if (topic === 'skripsi/byhendrich/esp32status') {
                 const parsedMessage = JSON.parse(message.toString());
                 if (parsedMessage.status) {
-                    setEspStatus(parsedMessage.status === 'connected' ? 'Connected' : 'Disconnected');
+                    setEspStatus(parsedMessage.status === 'Connected' ? 'Connected' : 'Disconnected');
                     setPopupMessage(`ESP32 is ${parsedMessage.status}`);
                     setPopupVisible(true);
                     setTimeout(() => setPopupVisible(false), 3000);
@@ -67,6 +67,7 @@ const Insertdata = () => {
         const data = {
             Unit: temperatureUnit,
             Setpoint: desiredTemperature,
+            Timestamp: new Date().toISOString()
         };
 
         console.log("Data to be sent:", data);
@@ -135,11 +136,12 @@ const Insertdata = () => {
                     onBlur={handleBlur}
                 />
             </div>
-            
             <button className="start-button" onClick={handleSendClick}>Send</button>
             <button className="dataview-button" onClick={() => window.location.href = "/data"}>View Data</button>
-            <p>ESP32 Status: {espStatus}</p>
-
+            <div className="insert-data-status">
+                <div className={`insert-data-status-box ${espStatus === 'Connected' ? 'insert-data-status-connected' : 'insert-data-status-disconnected'}`}></div>
+                ESP32 Status: <span>{espStatus}</span>
+            </div>
             {popupVisible && <div className="popup">{popupMessage}</div>}
         </div>
     );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import mqtt from 'mqtt';
 import axios from 'axios';
 import './Dataview.css';
@@ -6,13 +6,17 @@ import './Dataview.css';
 const Dataview = () => {
     const [data, setData] = useState([]);
     const [isFetching, setIsFetching] = useState(true);
+    const esp32LastSeenRef = useRef(null);
+    const [popupMessage, setPopupMessage] = useState('');
+    const [popupVisible, setPopupVisible] = useState(false);
+    const [espStatus, setEspStatus] = useState('Disconnected');
 
     useEffect(() => {
         const mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
 
         mqttClient.on('connect', () => {
             console.log('Connected to broker');
-            mqttClient.subscribe(['skripsi/byhendrich/dashtoesp', 'skripsi/byhendrich/esptodash'], { qos: 2 }, (error) => {
+            mqttClient.subscribe(['skripsi/byhendrich/esptodash', 'skripsi/byhendrich/esp32status'], { qos: 2 }, (error) => {
                 if (error) {
                     console.error('Subscription error:', error);
                 }
@@ -20,16 +24,45 @@ const Dataview = () => {
         });
 
         mqttClient.on('message', (topic, message) => {
-            const parsedMessage = JSON.parse(message.toString());
-            setData(prevData => [parsedMessage, ...prevData]); // Prepend new data
+            try {
+                const parsedMessage = JSON.parse(message.toString());
+                if (topic === 'skripsi/byhendrich/esp32status') {
+                    if (parsedMessage.status) {
+                        setEspStatus(parsedMessage.status === 'Connected' ? 'Connected' : 'Disconnected');
+                        setPopupMessage(`ESP32 is ${parsedMessage.status}`);
+                        setPopupVisible(true);
+                        setTimeout(() => setPopupVisible(false), 3000);
+                    }
+                } else if (topic === 'skripsi/byhendrich/esptodash') {
+                    const now = new Date();
+                    const messageTime = new Date(parsedMessage.Timestamp);
+                    if (now - messageTime >= 10 * 60 * 1000) {
+                        setData(prevData => [parsedMessage, ...prevData]); // Prepend new data
+                    }
+                }
+            } catch (e) {
+                console.error('Error parsing JSON message:', e);
+            }
         });
 
+        const checkEspStatus = () => {
+            if (esp32LastSeenRef.current) {
+                const now = new Date();
+                const diff = now - esp32LastSeenRef.current;
+                if (diff > 10 * 1000) { // If more than 10 sec have passed without a status message
+                    setEspStatus('Disconnected');
+                }
+            }
+        };
+
+        const statusInterval = setInterval(checkEspStatus, 30 * 1000); // Check every 10 seconds
         fetchData();
-        const intervalId = setInterval(fetchData, 10 * 60 * 1000);
+        const dataInterval = setInterval(fetchData, 10 * 60 * 1000);
 
         return () => {
             mqttClient.end();
-            clearInterval(intervalId);
+            clearInterval(statusInterval);
+            clearInterval(dataInterval);
         };
     }, []);
 
@@ -49,15 +82,28 @@ const Dataview = () => {
     };
 
     const formatDate = (dateString) => {
-        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-        return new Date(dateString).toLocaleDateString(undefined, options);
+        const date = new Date(dateString);
+        const options = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit',
+            hour12: false 
+        };
+        return date.toLocaleDateString('en-GB', options).replace(',', ' at');
     };
 
     return (
         <div className="wrapper">
-            <button className="button back-button" onClick={() => window.location.href = "/"}>Back</button>
+            <button className="dataview-back-button" onClick={() => window.location.href = "/"}>Back</button>
             <button className="button top-right-button" onClick={() => window.location.href = "/last30days"}>View Last 30 Days Data</button>
             <div className="container">
+                <div className="data-view-status">
+                    <div className={`data-view-status-box ${espStatus === 'Connected' ? 'data-view-status-connected' : 'data-view-status-disconnected'}`}></div>
+                    ESP32 Status: <span>{espStatus}</span>
+                </div>
                 <div className="header">
                     <h1>Data View</h1>
                 </div>
@@ -89,6 +135,11 @@ const Dataview = () => {
                     </tbody>
                 </table>
             </div>
+            {popupVisible && (
+                <div className="popup">
+                    <p>{popupMessage}</p>
+                </div>
+            )}
         </div>
     );
 };
