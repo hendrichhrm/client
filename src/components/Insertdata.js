@@ -34,7 +34,6 @@ const Insertdata = () => {
                         setPopupVisible(true);
                         setTimeout(() => setPopupVisible(false), 3000);
                         
-                        // Update the last seen timestamp when a status message is received
                         esp32LastSeenRef.current = new Date();
                     }
                 }
@@ -47,7 +46,7 @@ const Insertdata = () => {
             if (esp32LastSeenRef.current) {
                 const now = new Date();
                 const diff = now - esp32LastSeenRef.current;
-                if (diff > 10 * 1000) { // If more than 10 sec have passed without a status message
+                if (diff > 3 * 1000) { // If more than 10 sec have passed without a status message
                     setEspStatus('Disconnected');
                 }
             }
