@@ -6,7 +6,7 @@ import './Dataview.css';
 const Dataview = () => {
     const [data, setData] = useState([]);
     const [isFetching, setIsFetching] = useState(true);
-    const esp32LastSeenRef = useRef(null);
+    const esp32LastSeenRef = useRef(new Date());
     const [popupMessage, setPopupMessage] = useState('');
     const [popupVisible, setPopupVisible] = useState(false);
     const [espStatus, setEspStatus] = useState('Disconnected');
@@ -32,6 +32,9 @@ const Dataview = () => {
                         setPopupMessage(`ESP32 is ${parsedMessage.status}`);
                         setPopupVisible(true);
                         setTimeout(() => setPopupVisible(false), 3000);
+
+                        // Update the last seen timestamp when a status message is received
+                        esp32LastSeenRef.current = new Date();
                     }
                 } else if (topic === 'skripsi/byhendrich/esptodash') {
                     const now = new Date();
@@ -49,7 +52,7 @@ const Dataview = () => {
             if (esp32LastSeenRef.current) {
                 const now = new Date();
                 const diff = now - esp32LastSeenRef.current;
-                if (diff > 3 * 1000) { // If more than 10 sec have passed without a status message
+                if (diff > 10 * 1000) { // If more than 10 sec have passed without a status message
                     setEspStatus('Disconnected');
                 }
             }
