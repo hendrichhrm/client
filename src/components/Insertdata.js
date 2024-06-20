@@ -122,7 +122,7 @@ const Insertdata = () => {
                 />
             </div>
             <div>
-                <label htmlFor="Desired-temperature">Desired Temperature (25 - 650)</label>
+                <label htmlFor="Desired-temperature">Desired Temperature (Setpoint)</label>
                 <input
                     type="number"
                     id="Desired-temperature"
