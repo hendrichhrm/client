@@ -45,13 +45,13 @@ const Insertdata = () => {
             if (esp32LastSeenRef.current) {
                 const now = new Date();
                 const diff = now - esp32LastSeenRef.current;
-                if (diff > 10 * 1000) { // If more than 10 sec have passed without a status message
+                if (diff > 10 * 1000) { 
                     setEspStatus('Disconnected');
                 }
             }
         };
 
-        const statusInterval = setInterval(checkEspStatus, 10 * 1000); // Check every 10 seconds
+        const statusInterval = setInterval(checkEspStatus, 10 * 1000); 
 
         return () => {
             mqttClient.end();

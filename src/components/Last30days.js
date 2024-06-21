@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './Last30days.css'; // Pastikan path ini benar
+import './Last30days.css'; 
 
 const Last30days = () => {
     const [data, setData] = useState([]);
@@ -14,7 +14,7 @@ const Last30days = () => {
         try {
             console.log('Fetching data from the backend...');
             const response = await axios.get('http://localhost:3000/api/last30days');
-            console.log('Fetched data:', response.data);  // Debugging: Log fetched data
+            console.log('Fetched data:', response.data);  
             setData(response.data);
             setIsLoading(false);
         } catch (error) {

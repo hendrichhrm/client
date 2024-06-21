@@ -35,7 +35,6 @@ const Dataview = () => {
                         setPopupVisible(true);
                         setTimeout(() => setPopupVisible(false), 3000);
 
-                        // Update the last seen timestamp when a status message is received
                         esp32LastSeenRef.current = new Date();
                     }
                 } else if (topic === 'skripsi/byhendrich/esptodash') {
@@ -50,15 +49,15 @@ const Dataview = () => {
             if (esp32LastSeenRef.current) {
                 const now = new Date();
                 const diff = now - esp32LastSeenRef.current;
-                if (diff > 10 * 1000) { // If more than 10 sec have passed without a status message
+                if (diff > 10 * 1000) { 
                     setEspStatus('Disconnected');
                 }
             }
         };
 
-        const statusInterval = setInterval(checkEspStatus, 10 * 1000); // Check every 10 seconds
+        const statusInterval = setInterval(checkEspStatus, 10 * 1000); 
         fetchData(); // Initial fetch
-        const dataInterval = setInterval(fetchData, 10 * 60 * 1000); // Fetch every 10 minutes
+        const dataInterval = setInterval(fetchData, 10 * 60 * 1000); 
 
         return () => {
             mqttClient.end();
@@ -70,18 +69,18 @@ const Dataview = () => {
     const fetchData = async () => {
         try {
             const response = await axios.get('http://localhost:3000/api/data');
-            console.log('Data fetched from backend:', response.data); // Add this line
+            console.log('Data fetched from backend:', response.data); 
             const data = response.data.map(item => ({
                 Timestamp: item.waktu,
                 Unit: item.nilai.Unit,
                 Setpoint: item.nilai.Setpoint,
                 Temperature: item.nilai.Temperature,
             }));
-            setData(data.reverse()); // Reverse if you want the latest data first
+            setData(data.reverse()); 
             setIsFetching(false);
         } catch (error) {
             console.error('Error fetching data:', error);
-            setIsFetching(false); // Ensure loading state is turned off in case of error
+            setIsFetching(false); 
         }
     };
 
