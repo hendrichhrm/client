@@ -27,16 +27,15 @@ const Insertdata = () => {
         mqttClient.on('message', (topic, message) => {
             try {
                 const parsedMessage = JSON.parse(message.toString());
-                if (topic === 'skripsi/byhendrich/esp32status') {
-                    if (parsedMessage.status) {
-                        setEspStatus(parsedMessage.status === 'Connected' ? 'Connected' : 'Disconnected');
-                        setPopupMessage(`ESP32 is ${parsedMessage.status}`);
-                        setPopupVisible(true);
-                        setTimeout(() => setPopupVisible(false), 3000);
+                if (topic === 'skripsi/byhendrich/esp32status' && parsedMessage.status) {
+                    setEspStatus(parsedMessage.status === 'Connected' ? 'Connected' : 'Disconnected');
+                    setPopupMessage(`ESP32 is ${parsedMessage.status}`);
+                    setPopupVisible(true);
+                    setTimeout(() => setPopupVisible(false), 3000);
                         
-                        esp32LastSeenRef.current = new Date();
-                    }
+                    esp32LastSeenRef.current = new Date();
                 }
+                
             } catch (e) {
                 console.error('Error parsing JSON message:', e);
             }
