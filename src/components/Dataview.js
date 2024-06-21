@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import mqtt from 'mqtt';
-import axios from 'axios';
 import './Dataview.css';
 
 const Dataview = () => {
     const [data, setData] = useState([]);
-    const [isFetching, setIsFetching] = useState(true);
-    const esp32LastSeenRef = useRef(new Date());
+    const [isFetching] = useState(false);
+    const esp32LastSeenRef = useRef(null);
     const [popupMessage, setPopupMessage] = useState('');
     const [popupVisible, setPopupVisible] = useState(false);
     const [espStatus, setEspStatus] = useState('Disconnected');
+    const [isEspConnected, setIsEspConnected] = useState(false);
 
     useEffect(() => {
         const mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
 
         mqttClient.on('connect', () => {
             console.log('Connected to broker');
-            mqttClient.subscribe(['skripsi/byhendrich/dashtoesp', 'skripsi/byhendrich/esptodash', 'skripsi/byhendrich/esp32status'], { qos: 2 }, (error) => {
+            mqttClient.subscribe(['skripsi/byhendrich/esptodash', 'skripsi/byhendrich/esp32status'], { qos: 2 }, (error) => {
                 if (error) {
                     console.error('Subscription error:', error);
                 }
@@ -35,10 +35,17 @@ const Dataview = () => {
                         setPopupVisible(true);
                         setTimeout(() => setPopupVisible(false), 3000);
 
-                        esp32LastSeenRef.current = new Date();
+                        if (parsedMessage.status === 'Connected') {
+                            setIsEspConnected(true);
+                            esp32LastSeenRef.current = new Date();
+                        } else {
+                            setIsEspConnected(false);
+                        }
                     }
                 } else if (topic === 'skripsi/byhendrich/esptodash') {
-                    setData(prevData => [parsedMessage, ...prevData]);
+                    if (isEspConnected) {
+                        setData(prevData => [parsedMessage, ...prevData]);
+                    }
                 }
             } catch (e) {
                 console.error('Error parsing JSON message:', e);
@@ -51,38 +58,18 @@ const Dataview = () => {
                 const diff = now - esp32LastSeenRef.current;
                 if (diff > 10 * 1000) { 
                     setEspStatus('Disconnected');
+                    setIsEspConnected(false);
                 }
             }
         };
 
         const statusInterval = setInterval(checkEspStatus, 10 * 1000); 
-        fetchData(); // Initial fetch
-        const dataInterval = setInterval(fetchData, 10 * 60 * 1000); 
 
         return () => {
             mqttClient.end();
             clearInterval(statusInterval);
-            clearInterval(dataInterval);
         };
-    }, []);
-
-    const fetchData = async () => {
-        try {
-            const response = await axios.get('http://localhost:3000/api/data');
-            console.log('Data fetched from backend:', response.data); 
-            const data = response.data.map(item => ({
-                Timestamp: item.waktu,
-                Unit: item.nilai.Unit,
-                Setpoint: item.nilai.Setpoint,
-                Temperature: item.nilai.Temperature,
-            }));
-            setData(data.reverse()); 
-            setIsFetching(false);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            setIsFetching(false); 
-        }
-    };
+    }, [isEspConnected]);
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -101,7 +88,7 @@ const Dataview = () => {
     return (
         <div className="wrapper">
             <button className="dataview-back-button" onClick={() => window.location.href = "/"}>Back</button>
-            <button className="button top-right-button" onClick={() => window.location.href = "/last30days"}>View Last 30 Days Data</button>
+            <button className="button top-right-button" onClick={() => window.location.href = "/last30days"}>Last 30 Days Data</button>
             <div className="container">
                 <div className="data-view-status">
                     <div className={`data-view-status-box ${espStatus === 'Connected' ? 'data-view-status-connected' : 'data-view-status-disconnected'}`}></div>
@@ -131,7 +118,7 @@ const Dataview = () => {
                                     <td>{formatDate(item.Timestamp)}</td>
                                     <td>{item.Unit}</td>
                                     <td>{item.Setpoint}</td>
-                                    <td>{item.Temperature}</td>
+                                    <td>{item.Temperature !== 'N/A' ? `${item.Temperature} °C` : '-'}</td>
                                 </tr>
                             ))
                         )}
