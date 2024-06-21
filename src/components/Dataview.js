@@ -39,11 +39,7 @@ const Dataview = () => {
                         esp32LastSeenRef.current = new Date();
                     }
                 } else if (topic === 'skripsi/byhendrich/esptodash') {
-                    const now = new Date();
-                    const messageTime = new Date(parsedMessage.Timestamp);
-                    if (now - messageTime >= 10 * 60 * 1000) {
-                        setData(prevData => [parsedMessage, ...prevData]);
-                    }
+                    setData(prevData => [parsedMessage, ...prevData]);
                 }
             } catch (e) {
                 console.error('Error parsing JSON message:', e);
@@ -61,8 +57,8 @@ const Dataview = () => {
         };
 
         const statusInterval = setInterval(checkEspStatus, 10 * 1000); // Check every 10 seconds
-        fetchData();
-        const dataInterval = setInterval(fetchData, 10 * 60 * 1000);
+        fetchData(); // Initial fetch
+        const dataInterval = setInterval(fetchData, 10 * 60 * 1000); // Fetch every 10 minutes
 
         return () => {
             mqttClient.end();
@@ -74,15 +70,18 @@ const Dataview = () => {
     const fetchData = async () => {
         try {
             const response = await axios.get('http://localhost:3000/api/data');
-            const now = new Date();
-            const filteredData = response.data.filter(item => {
-                const itemTime = new Date(item.Timestamp);
-                return now - itemTime >= 10 * 60 * 1000; // Only include data that is at least 10 minutes old
-            });
-            setData(filteredData.reverse());
+            console.log('Data fetched from backend:', response.data); // Add this line
+            const data = response.data.map(item => ({
+                Timestamp: item.waktu,
+                Unit: item.nilai.Unit,
+                Setpoint: item.nilai.Setpoint,
+                Temperature: item.nilai.Temperature,
+            }));
+            setData(data.reverse()); // Reverse if you want the latest data first
             setIsFetching(false);
         } catch (error) {
             console.error('Error fetching data:', error);
+            setIsFetching(false); // Ensure loading state is turned off in case of error
         }
     };
 

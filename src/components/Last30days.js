@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './Last30days.css'; // Ensure this path is correct
+import './Last30days.css'; // Pastikan path ini benar
 
 const Last30days = () => {
     const [data, setData] = useState([]);
@@ -23,8 +23,17 @@ const Last30days = () => {
     };
 
     const formatDate = (dateString) => {
-        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-        return new Date(dateString).toLocaleDateString(undefined, options);
+        const date = new Date(dateString);
+        const options = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit',
+            hour12: false 
+        };
+        return date.toLocaleDateString('en-GB', options).replace(',', ' at');
     };
 
     return (
