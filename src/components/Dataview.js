@@ -16,7 +16,7 @@ const Dataview = () => {
 
         mqttClient.on('connect', () => {
             console.log('Connected to broker');
-            mqttClient.subscribe(['skripsi/byhendrich/esptodash', 'skripsi/byhendrich/esp32status'], { qos: 2 }, (error) => {
+            mqttClient.subscribe(['skripsi/byhendrich/dashtoesp', 'skripsi/byhendrich/esptodash', 'skripsi/byhendrich/esp32status'], { qos: 2 }, (error) => {
                 if (error) {
                     console.error('Subscription error:', error);
                 }
@@ -26,6 +26,8 @@ const Dataview = () => {
         mqttClient.on('message', (topic, message) => {
             try {
                 const parsedMessage = JSON.parse(message.toString());
+                console.log(`Received message on topic ${topic}:`, parsedMessage);
+
                 if (topic === 'skripsi/byhendrich/esp32status') {
                     if (parsedMessage.status) {
                         setEspStatus(parsedMessage.status === 'Connected' ? 'Connected' : 'Disconnected');
@@ -40,7 +42,7 @@ const Dataview = () => {
                     const now = new Date();
                     const messageTime = new Date(parsedMessage.Timestamp);
                     if (now - messageTime >= 10 * 60 * 1000) {
-                        setData(prevData => [parsedMessage, ...prevData]); // Prepend new data
+                        setData(prevData => [parsedMessage, ...prevData]);
                     }
                 }
             } catch (e) {
@@ -52,7 +54,7 @@ const Dataview = () => {
             if (esp32LastSeenRef.current) {
                 const now = new Date();
                 const diff = now - esp32LastSeenRef.current;
-                if (diff > 10 * 1000) { // If more than 3 sec have passed without a status message
+                if (diff > 10 * 1000) { // If more than 10 sec have passed without a status message
                     setEspStatus('Disconnected');
                 }
             }
