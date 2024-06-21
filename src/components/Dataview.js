@@ -4,7 +4,7 @@ import './Dataview.css';
 
 const Dataview = () => {
     const [data, setData] = useState([]);
-    const [isFetching] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
     const esp32LastSeenRef = useRef(null);
     const [popupMessage, setPopupMessage] = useState('');
     const [popupVisible, setPopupVisible] = useState(false);
@@ -44,7 +44,11 @@ const Dataview = () => {
                     }
                 } else if (topic === 'skripsi/byhendrich/esptodash') {
                     if (isEspConnected) {
-                        setData(prevData => [parsedMessage, ...prevData]);
+                        const formattedData = {
+                            ...parsedMessage,
+                            Timestamp: new Date().toISOString()  // Add timestamp here
+                        };
+                        setData(prevData => [formattedData, ...prevData]);
                     }
                 }
             } catch (e) {
