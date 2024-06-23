@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import mqtt from 'mqtt';
+//import axios from './axiosConfig';
 import './Insertdata.css';
 
 const Insertdata = () => {

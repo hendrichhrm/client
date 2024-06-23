@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './Last30days.css'; 
+import axios from './axiosConfig';
+import './Last30days.css';
 
 const Last30days = () => {
     const [data, setData] = useState([]);
@@ -14,7 +14,7 @@ const Last30days = () => {
         try {
             console.log('Fetching data from the backend...');
             const response = await axios.get('http://localhost:3000/api/last30days');
-            console.log('Fetched data:', response.data);  
+            console.log('Fetched data:', response.data);  // Log the fetched data
             setData(response.data);
             setIsLoading(false);
         } catch (error) {
@@ -45,7 +45,7 @@ const Last30days = () => {
             {isLoading ? (
                 <p>Loading data...</p>
             ) : (
-                <table className="table">
+                <table className="last30days-table">
                     <thead className="thead-light">
                         <tr>
                             <th scope="col">Received At</th>
@@ -63,9 +63,9 @@ const Last30days = () => {
                             data.map((item, index) => (
                                 <tr key={index}>
                                     <td>{formatDate(item.waktu)}</td>
-                                    <td>{item.nilai.Unit}</td>
-                                    <td>{item.nilai.Setpoint}</td>
-                                    <td>{item.nilai.Temperature}</td>
+                                    <td>{item.nilai && item.nilai.Unit !== null ? item.nilai.Unit : '-'}</td>
+                                    <td>{item.nilai && item.nilai.Setpoint !== null ? item.nilai.Setpoint : '-'}</td>
+                                    <td>{item.nilai && item.nilai.Temperature !== null ? item.nilai.Temperature : '-'}</td>
                                 </tr>
                             ))
                         )}

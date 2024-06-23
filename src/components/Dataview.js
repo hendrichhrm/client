@@ -42,14 +42,12 @@ const Dataview = () => {
                             setIsEspConnected(false);
                         }
                     }
-                } else if (topic === 'skripsi/byhendrich/esptodash') {
-                    if (isEspConnected) {
+                } else if (topic === 'skripsi/byhendrich/esptodash' && isEspConnected) {
                         const formattedData = {
                             ...parsedMessage,
                             Timestamp: new Date().toISOString()  // Add timestamp here
                         };
                         setData(prevData => [formattedData, ...prevData]);
-                    }
                 }
             } catch (e) {
                 console.error('Error parsing JSON message:', e);
