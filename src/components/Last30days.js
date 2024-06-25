@@ -5,7 +5,7 @@ import './Last30days.css';
 const Last30days = () => {
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [lastLogin, setLastLogin] = useState('');
+   
 
     useEffect(() => {
         fetchData();
@@ -25,7 +25,7 @@ const Last30days = () => {
                 console.log('Last logged in user:', fetchedLastLoggedInUser);  // Log the last logged in user
 
                 setData(fetchedData || []);  // Set to an empty array if undefined
-                setLastLogin(fetchedLastLoggedInUser || '');
+                
             } else {
                 console.log('No data in response');
             }
