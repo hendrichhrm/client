@@ -79,8 +79,7 @@ const Last30days = () => {
                                     <td>{formatDate(item.waktu)}</td>
                                     <td>{item.nilai && item.nilai.Unit !== null ? item.nilai.Unit : '-'}</td>
                                     <td>{item.nilai && item.nilai.Setpoint !== null ? item.nilai.Setpoint : '-'}</td>
-                                    <td>{item.nilai && item.nilai.Temperature !== null ? item.nilai.Temperature : '-'}</td>
-                                    
+                                    <td>{item.nilai && item.nilai.Temperature !== null ? item.nilai.Temperature : '-'}</td>           
                                 </tr>
                             ))
                         )}
