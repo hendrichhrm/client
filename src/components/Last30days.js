@@ -55,7 +55,6 @@ const Last30days = () => {
             <button className="last30days-back-button" onClick={() => window.location.href = "/"}>Home</button>
             <div className="header">
                 <h2>Last 30 Days Data</h2>
-                {lastLogin && <p>Current: {lastLogin}</p>}
             </div>
             {isLoading ? (
                 <p>Loading data...</p>
