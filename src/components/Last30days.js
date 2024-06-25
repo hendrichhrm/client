@@ -6,7 +6,6 @@ const Last30days = () => {
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-
     useEffect(() => {
         fetchData();
     }, []);
