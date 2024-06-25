@@ -61,7 +61,7 @@ const Dataview = () => {
             if (esp32LastSeenRef.current) {
                 const now = new Date();
                 const diff = now - esp32LastSeenRef.current;
-                if (diff > 12 * 1000) { 
+                if (diff > 30 * 1000) { 
                     setEspStatus('Disconnected');
                     setIsEspConnected(false);
                 }

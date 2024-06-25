@@ -46,7 +46,7 @@ const Insertdata = () => {
             if (esp32LastSeenRef.current) {
                 const now = new Date();
                 const diff = now - esp32LastSeenRef.current;
-                if (diff > 10 * 1000) { 
+                if (diff > 30 * 1000) { 
                     setEspStatus('Disconnected');
                 }
             }
