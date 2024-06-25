@@ -10,7 +10,6 @@ const Login = ({ setToken }) => {
     const navigate = useNavigate(); // Use the navigate hook
 
     useEffect(() => {
-        // Hapus token saat komponen dirender
         localStorage.removeItem('token'); 
         setToken(null); // Set token ke null
     }, [setToken]);

@@ -4,7 +4,7 @@ import './Dataview.css';
 
 const Dataview = () => {
     const [data, setData] = useState([]);
-    const [isFetching] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
     const esp32LastSeenRef = useRef(null);
     const [popupMessage, setPopupMessage] = useState('');
     const [popupVisible, setPopupVisible] = useState(false);
@@ -43,11 +43,14 @@ const Dataview = () => {
                         }
                     }
                 } else if (topic === 'skripsi/byhendrich/esptodash' && isEspConnected) {
-                        const formattedData = {
-                            ...parsedMessage,
-                            Timestamp: new Date().toISOString()  // Add timestamp here
-                        };
-                        setData(prevData => [formattedData, ...prevData]);
+                    const formattedData = {
+                        ...parsedMessage,
+                        Timestamp: new Date().toISOString()  // Add timestamp here
+                    };
+                    setData(prevData => [formattedData, ...prevData]);
+
+                    // Save data to backend
+                    saveDataToBackend(formattedData);
                 }
             } catch (e) {
                 console.error('Error parsing JSON message:', e);
@@ -58,7 +61,7 @@ const Dataview = () => {
             if (esp32LastSeenRef.current) {
                 const now = new Date();
                 const diff = now - esp32LastSeenRef.current;
-                if (diff > 10 * 1000) { 
+                if (diff > 12 * 1000) { 
                     setEspStatus('Disconnected');
                     setIsEspConnected(false);
                 }
@@ -72,6 +75,28 @@ const Dataview = () => {
             clearInterval(statusInterval);
         };
     }, [isEspConnected]);
+
+    const saveDataToBackend = async (data) => {
+        try {
+            console.log('Saving data to backend:', data);
+            const response = await fetch('http://localhost:3001/api/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Data saved successfully:', result);
+        } catch (error) {
+            console.error('Error saving data to backend:', error);
+        }
+    };
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
