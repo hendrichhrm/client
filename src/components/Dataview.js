@@ -68,7 +68,7 @@ const Dataview = () => {
             }
         };
 
-        const statusInterval = setInterval(checkEspStatus, 10 * 1000); 
+        const statusInterval = setInterval(checkEspStatus, 30 * 1000); 
 
         return () => {
             mqttClient.end();
