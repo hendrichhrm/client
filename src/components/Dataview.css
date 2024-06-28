@@ -1,52 +1,37 @@
-/* General Styles */
-body {
-    font-family: 'Tilt Warp', sans-serif;
-    background-color: #0d024d;
-    margin: 0;
-    padding: 0;
-}
-
-/* Container */
-.container {
-    max-width: 800px;
-    margin: 100px auto;
-    background-color: #fff;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.1);
+.wrapper {
     position: relative;
+    padding: 20px;
 }
 
-/* Headings */
-h1 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-/* Status Box */
-.data-view-status {
+.dataview-back-button,
+.button.top-right-button {
     position: absolute;
-    height: 0px;
-    top: 65px;
-    left: 10px;
+    top: 20px;
+}
+
+.dataview-back-button {
+    left: 20px;
+}
+
+.button.top-right-button {
+    right: 20px;
+}
+
+.container {
+    margin-top: 60px;
+}
+
+.data-view-status {
     display: flex;
     align-items: center;
-    font-weight: bold;
+    margin-bottom: 20px;
 }
 
 .data-view-status-box {
     width: 10px;
     height: 10px;
-    margin-right: 10px;
     border-radius: 50%;
+    margin-right: 10px;
 }
 
 .data-view-status-connected {
@@ -57,76 +42,23 @@ h1 {
     background-color: red;
 }
 
-/* Table Styles */
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-.table th, .table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-
-.table th {
-    background-color: #f2f2f2;
-}
-
-/* Button Styles */
-.data-view-button {
-    padding: auto;
-    font-family: 'Tilt Warp', sans-serif;
-    font-size: 18px;
-    font-weight: 400;
-    text-align: center;
-    text-transform: none;
-    color: #fff;
-    border: none;
+.latency-jitter-display {
+    position: absolute;
+    top: 20px;
+    right: 150px; /* Adjust as needed */
+    background-color: white;
+    padding: 10px;
+    border: 1px solid #ccc;
     border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin: 10px;
 }
 
-.button:hover {
-    background-color: #0056b3;
-}
-
-.top-right-button {
-    background-color: #007bff;
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    padding: auto;
-}
-
-.dataview-back-button {
-    background-color: #dc3545;
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    padding: 10px 10px;
-}
-
-.dataview-back-button:hover {
-    background-color: #c82333;
-}
-
-/* Popup Styles */
 .popup {
     position: fixed;
     top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 20px;
     background-color: #333;
-    color: #fff;
-    padding: 10px 20px;
+    color: white;
+    padding: 10px;
     border-radius: 5px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    opacity: 1;
-    transition: opacity 0.5s;
-    text-align: center;
 }

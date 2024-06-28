@@ -10,13 +10,16 @@ const Dataview = () => {
     const [popupVisible, setPopupVisible] = useState(false);
     const [espStatus, setEspStatus] = useState('Disconnected');
     const [isEspConnected, setIsEspConnected] = useState(false);
+    const [latency, setLatency] = useState(null);
+    const [jitter, setJitter] = useState(null);
+    const lastLatencyRef = useRef(null);
 
     useEffect(() => {
         const mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
 
         mqttClient.on('connect', () => {
             console.log('Connected to broker');
-            mqttClient.subscribe(['skripsi/byhendrich/esptodash', 'skripsi/byhendrich/esp32status'], { qos: 2 }, (error) => {
+            mqttClient.subscribe(['skripsi/byhendrich/esptodash', 'skripsi/byhendrich/esp32status', 'skripsi/byhendrich/qos_metrics'], { qos: 2 }, (error) => {
                 if (error) {
                     console.error('Subscription error:', error);
                 }
@@ -28,7 +31,7 @@ const Dataview = () => {
                 const parsedMessage = JSON.parse(message.toString());
                 console.log(`Received message on topic ${topic}:`, parsedMessage);
 
-                if (topic === 'skripsi/byhendrich/esp32status') {
+                if (topic == 'skripsi/byhendrich/esp32status') {
                     if (parsedMessage.status) {
                         setEspStatus(parsedMessage.status === 'Connected' ? 'Connected' : 'Disconnected');
                         setPopupMessage(`ESP32 is ${parsedMessage.status}`);
@@ -42,7 +45,7 @@ const Dataview = () => {
                             setIsEspConnected(false);
                         }
                     }
-                } else if (topic === 'skripsi/byhendrich/esptodash' && isEspConnected) {
+                } else if (topic == 'skripsi/byhendrich/esptodash' && isEspConnected) {
                     const formattedData = {
                         ...parsedMessage,
                         Timestamp: new Date().toISOString()  // Add timestamp here
@@ -51,6 +54,15 @@ const Dataview = () => {
 
                     // Save data to backend
                     saveDataToBackend(formattedData);
+                } else if (topic == 'skripsi/byhendrich/qos_metrics') {
+                    const now = Date.now();
+                    const sentTime = parsedMessage.timestamp;
+                    const newLatency = now - sentTime;
+                    const newJitter = lastLatencyRef.current !== null ? Math.abs(newLatency - lastLatencyRef.current) : 0;
+
+                    setLatency(newLatency);
+                    setJitter(newJitter);
+                    lastLatencyRef.current = newLatency;
                 }
             } catch (e) {
                 console.error('Error parsing JSON message:', e);
@@ -151,6 +163,10 @@ const Dataview = () => {
                         )}
                     </tbody>
                 </table>
+            </div>
+            <div className="latency-jitter-display">
+                <p>Latency: {latency !== null ? `${latency} ms` : 'N/A'}</p>
+                <p>Jitter: {jitter !== null ? `${jitter} ms` : 'N/A'}</p>
             </div>
             {popupVisible && (
                 <div className="popup">
