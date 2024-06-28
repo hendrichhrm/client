@@ -7,6 +7,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.2",
+    "BigInt": "^5.5.3",
     "browserify-zlib": "^0.2.0",
     "https-browserify": "^1.0.0",
     "mqtt": "^5.7.0",

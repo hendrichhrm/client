@@ -19,7 +19,7 @@ const Dataview = () => {
 
         mqttClient.on('connect', () => {
             console.log('Connected to broker');
-            mqttClient.subscribe(['skripsi/byhendrich/esptodash', 'skripsi/byhendrich/esp32status', 'skripsi/byhendrich/qos_metrics'], { qos: 2 }, (error) => {
+            mqttClient.subscribe(['skripsi/byhendrich/esptodash', 'skripsi/byhendrich/esp32status', 'skripsi/byhendrich/latency_test/response'], { qos: 2 }, (error) => {
                 if (error) {
                     console.error('Subscription error:', error);
                 }
@@ -31,7 +31,7 @@ const Dataview = () => {
                 const parsedMessage = JSON.parse(message.toString());
                 console.log(`Received message on topic ${topic}:`, parsedMessage);
 
-                if (topic == 'skripsi/byhendrich/esp32status') {
+                if (topic === 'skripsi/byhendrich/esp32status') {
                     if (parsedMessage.status) {
                         setEspStatus(parsedMessage.status === 'Connected' ? 'Connected' : 'Disconnected');
                         setPopupMessage(`ESP32 is ${parsedMessage.status}`);
@@ -45,7 +45,7 @@ const Dataview = () => {
                             setIsEspConnected(false);
                         }
                     }
-                } else if (topic == 'skripsi/byhendrich/esptodash' && isEspConnected) {
+                } else if (topic === 'skripsi/byhendrich/esptodash') {
                     const formattedData = {
                         ...parsedMessage,
                         Timestamp: new Date().toISOString()  // Add timestamp here
@@ -54,9 +54,9 @@ const Dataview = () => {
 
                     // Save data to backend
                     saveDataToBackend(formattedData);
-                } else if (topic == 'skripsi/byhendrich/qos_metrics') {
+                } else if (topic === 'skripsi/byhendrich/latency_test/response') {
                     const now = Date.now();
-                    const sentTime = parsedMessage.timestamp;
+                    const sentTime = parsedMessage.sentTime;
                     const newLatency = now - sentTime;
                     const newJitter = lastLatencyRef.current !== null ? Math.abs(newLatency - lastLatencyRef.current) : 0;
 
@@ -86,7 +86,7 @@ const Dataview = () => {
             mqttClient.end();
             clearInterval(statusInterval);
         };
-    }, [isEspConnected]);
+    }, []);
 
     const saveDataToBackend = async (data) => {
         try {
@@ -128,7 +128,11 @@ const Dataview = () => {
         <div className="wrapper">
             <button className="dataview-back-button" onClick={() => window.location.href = "/"}>Back</button>
             <button className="button top-right-button" onClick={() => window.location.href = "/last30days"}>Last 30 Days Data</button>
+            
             <div className="container">
+                <p>Latency: {latency !== null ? `${latency} ms` : '- ms'}</p>
+                <p>Jitter: {jitter !== null ? `${jitter} ms` : '- ms'}</p>
+            
                 <div className="data-view-status">
                     <div className={`data-view-status-box ${espStatus === 'Connected' ? 'data-view-status-connected' : 'data-view-status-disconnected'}`}></div>
                     ESP32 Status: <span>{espStatus}</span>
@@ -163,10 +167,6 @@ const Dataview = () => {
                         )}
                     </tbody>
                 </table>
-            </div>
-            <div className="latency-jitter-display">
-                <p>Latency: {latency !== null ? `${latency} ms` : 'N/A'}</p>
-                <p>Jitter: {jitter !== null ? `${jitter} ms` : 'N/A'}</p>
             </div>
             {popupVisible && (
                 <div className="popup">
