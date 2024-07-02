@@ -1,3 +1,8 @@
+//This code is Created by Hendrich H M
+// You could adjust this code to your needs
+// However, you can't remove the author's because it's against the law
+// This code is Copyright of the author
+
 import React, { useState, useEffect, useRef } from 'react';
 import mqtt from 'mqtt';
 import './Dataview.css';
@@ -10,16 +15,13 @@ const Dataview = () => {
     const [popupVisible, setPopupVisible] = useState(false);
     const [espStatus, setEspStatus] = useState('Disconnected');
     const [isEspConnected, setIsEspConnected] = useState(false);
-    const [latency, setLatency] = useState(null);
-    const [jitter, setJitter] = useState(null);
-    const lastLatencyRef = useRef(null);
 
     useEffect(() => {
         const mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
 
         mqttClient.on('connect', () => {
             console.log('Connected to broker');
-            mqttClient.subscribe(['skripsi/byhendrich/esptodash', 'skripsi/byhendrich/esp32status', 'skripsi/byhendrich/latency_test/response'], { qos: 2 }, (error) => {
+            mqttClient.subscribe(['skripsi/byhendrich/esptodash', 'skripsi/byhendrich/esp32status'], { qos: 2 }, (error) => {
                 if (error) {
                     console.error('Subscription error:', error);
                 }
@@ -31,7 +33,7 @@ const Dataview = () => {
                 const parsedMessage = JSON.parse(message.toString());
                 console.log(`Received message on topic ${topic}:`, parsedMessage);
 
-                if (topic === 'skripsi/byhendrich/esp32status') {
+                if (topic === 'skripsi/byhendrich/esp32status1') {
                     if (parsedMessage.status) {
                         setEspStatus(parsedMessage.status === 'Connected' ? 'Connected' : 'Disconnected');
                         setPopupMessage(`ESP32 is ${parsedMessage.status}`);
@@ -54,15 +56,6 @@ const Dataview = () => {
 
                     // Save data to backend
                     saveDataToBackend(formattedData);
-                } else if (topic === 'skripsi/byhendrich/latency_test/response') {
-                    const now = Date.now();
-                    const sentTime = parsedMessage.sentTime;
-                    const newLatency = now - sentTime;
-                    const newJitter = lastLatencyRef.current !== null ? Math.abs(newLatency - lastLatencyRef.current) : 0;
-
-                    setLatency(newLatency);
-                    setJitter(newJitter);
-                    lastLatencyRef.current = newLatency;
                 }
             } catch (e) {
                 console.error('Error parsing JSON message:', e);
@@ -130,8 +123,7 @@ const Dataview = () => {
             <button className="button top-right-button" onClick={() => window.location.href = "/last30days"}>Last 30 Days Data</button>
             
             <div className="container">
-                <p>Latency: {latency !== null ? `${latency} ms` : '- ms'}</p>
-                <p>Jitter: {jitter !== null ? `${jitter} ms` : '- ms'}</p>
+                <h3>by Hendrich H M</h3>
             
                 <div className="data-view-status">
                     <div className={`data-view-status-box ${espStatus === 'Connected' ? 'data-view-status-connected' : 'data-view-status-disconnected'}`}></div>

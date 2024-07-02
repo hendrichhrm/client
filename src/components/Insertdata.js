@@ -1,3 +1,8 @@
+//This code is Created by Hendrich H M
+// You could adjust this code to your needs
+// However, you can't remove the author's because it's against the law
+// This code is Copyright of the author
+
 import React, { useState, useEffect, useRef } from 'react';
 import mqtt from 'mqtt';
 import './Insertdata.css';
@@ -12,7 +17,7 @@ const Insertdata = () => {
     const [espStatus, setEspStatus] = useState('Disconnected');
     const [latency, setLatency] = useState(null);
     const [jitter, setJitter] = useState(null);
-    const lastLatencyRef = useRef(null); // Ref untuk menyimpan latensi terakhir
+    const lastLatencyRef = useRef(null);
 
     useEffect(() => {
         const mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
@@ -20,7 +25,7 @@ const Insertdata = () => {
 
         mqttClient.on('connect', () => {
             console.log('Connected to broker');
-            mqttClient.subscribe(['skripsi/byhendrich/latency_test/response', 'skripsi/byhendrich/esp32status'], { qos: 2 }, (error) => {
+            mqttClient.subscribe(['skripsi/byhendrich/dashtoesp', 'skripsi/byhendrich/esp32status'], { qos: 2 }, (error) => {
                 if (error) {
                     console.error('Subscription error:', error);
                 }
@@ -32,29 +37,14 @@ const Insertdata = () => {
                 const parsedMessage = JSON.parse(message.toString());
                 console.log(`Received message on topic ${topic}:`, parsedMessage);
 
-                if (topic == 'skripsi/byhendrich/esp32status' && parsedMessage.status) {
+                if (topic == 'skripsi/byhendrich/esp32status1' && parsedMessage.status) {
                     setEspStatus(parsedMessage.status === 'Connected' ? 'Connected' : 'Disconnected');
                     setPopupMessage(`ESP32 is ${parsedMessage.status}`);
                     setPopupVisible(true);
                     setTimeout(() => setPopupVisible(false), 3000);
 
                     esp32LastSeenRef.current = new Date();
-                } else if (topic == 'skripsi/byhendrich/latency_test/response') {
-                    const sentTime = parseInt(parsedMessage.sentTime, 10); // Pastikan sentTime berupa integer
-                    const now = Date.now();
-                    const newLatency = now - sentTime; // Hitung latensi
-
-                    let newJitter = 0;
-                    if (lastLatencyRef.current !== null) {
-                        newJitter = Math.abs(newLatency - lastLatencyRef.current);
-                    }
-
-                    console.log(`Calculated Latency: ${newLatency} ms, Jitter: ${newJitter} ms`);
-
-                    setLatency(newLatency);
-                    setJitter(newJitter);
-                    lastLatencyRef.current = newLatency; // Update latensi terakhir
-                }
+                } 
             } catch (e) {
                 console.error('Error parsing JSON message:', e);
             }
@@ -142,9 +132,8 @@ const Insertdata = () => {
     return (
         <div className="wrapper">
             <div className="container">
-                <p>Latency: {latency !== null ? `${latency} ms` : '- ms'}</p>
-                <p>Jitter: {jitter !== null ? `${jitter} ms` : '- ms'}</p>
-                <h1>Control Panel</h1>
+                <h3>by Hendrich H M</h3>
+                <h2>Start Your Day</h2>
                 <div>
                     <label htmlFor="Temperature-unit">Temperature Unit (c / f)</label>
                     <input

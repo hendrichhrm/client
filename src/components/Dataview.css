@@ -1,3 +1,10 @@
+/*
+//This code is Created by Hendrich H M
+// You could adjust this code to your needs
+// However, you can't remove the author's because it's against the law
+// This code is Copyright of the author
+*/
+
 .wrapper {
     position: relative;
     padding: 20px;
@@ -50,18 +57,6 @@
 
 .data-view-status-disconnected {
     background-color: red;
-}
-
-.latency-jitter-display {
-    position: absolute;
-    top: 200px;
-    right: 20px; 
-    background-color: white;
-    color: black;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .table {
