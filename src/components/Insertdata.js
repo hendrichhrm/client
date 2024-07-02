@@ -15,9 +15,7 @@ const Insertdata = () => {
     const [client, setClient] = useState(null);
     const esp32LastSeenRef = useRef(new Date());
     const [espStatus, setEspStatus] = useState('Disconnected');
-    const [latency, setLatency] = useState(null);
-    const [jitter, setJitter] = useState(null);
-    const lastLatencyRef = useRef(null);
+
 
     useEffect(() => {
         const mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
@@ -161,7 +159,7 @@ const Insertdata = () => {
                 <button className="start-button" onClick={handleSendClick}>Send</button>
                 <button className="dataview-button" onClick={() => window.location.href = "/data"}>View Data</button>
                 <div className="insert-data-status">
-                    <div className={`insert-data-status-box ${espStatus === 'Connected' ? 'insert-data-status-connected' : 'insert-data-status-disconnected'}`}></div>
+                    <div className={`insert-data-status-box ${espStatus == 'Connected' ? 'insert-data-status-connected' : 'insert-data-status-disconnected'}`}></div>
                     ESP32 Status: <span>{espStatus}</span>
                 </div>
             </div>
