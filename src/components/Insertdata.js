@@ -16,7 +16,6 @@ const Insertdata = () => {
     const esp32LastSeenRef = useRef(new Date());
     const [espStatus, setEspStatus] = useState('Disconnected');
 
-
     useEffect(() => {
         const mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
         setClient(mqttClient);
@@ -35,14 +34,14 @@ const Insertdata = () => {
                 const parsedMessage = JSON.parse(message.toString());
                 console.log(`Received message on topic ${topic}:`, parsedMessage);
 
-                if (topic == 'skripsi/byhendrich/esp32status1' && parsedMessage.status) {
+                if (topic === 'skripsi/byhendrich/esp32status' && parsedMessage.status) {
                     setEspStatus(parsedMessage.status === 'Connected' ? 'Connected' : 'Disconnected');
                     setPopupMessage(`ESP32 is ${parsedMessage.status}`);
                     setPopupVisible(true);
                     setTimeout(() => setPopupVisible(false), 3000);
 
                     esp32LastSeenRef.current = new Date();
-                } 
+                }
             } catch (e) {
                 console.error('Error parsing JSON message:', e);
             }
@@ -159,7 +158,7 @@ const Insertdata = () => {
                 <button className="start-button" onClick={handleSendClick}>Send</button>
                 <button className="dataview-button" onClick={() => window.location.href = "/data"}>View Data</button>
                 <div className="insert-data-status">
-                    <div className={`insert-data-status-box ${espStatus == 'Connected' ? 'insert-data-status-connected' : 'insert-data-status-disconnected'}`}></div>
+                    <div className={`insert-data-status-box ${espStatus === 'Connected' ? 'insert-data-status-connected' : 'insert-data-status-disconnected'}`}></div>
                     ESP32 Status: <span>{espStatus}</span>
                 </div>
             </div>
